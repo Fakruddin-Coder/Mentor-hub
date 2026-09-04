@@ -72,8 +72,8 @@ Follow these steps to run **MentorHub** locally on XAMPP / WAMP / LAMP:
 
 ### 2. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/mentor-management.git
-cd mentor-management
+git clone https://github.com/Fakruddin-Coder/Mentor-hub.git
+cd Mentor-hub
 ```
 *(Or place the project files inside `C:/xampp/htdocs/mentor-management`)*
 
