@@ -1,0 +1,4 @@
+# Allow access to image files in uploads folder
+<FilesMatch "\.(jpg|jpeg|png|gif)$">
+    Allow from all
+</FilesMatch>

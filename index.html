@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorHub - Mentor & Mentee Management System</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-icon">🎓</div>
+                <div class="brand-text">
+                    <h1>MentorHub</h1>
+                    <span class="brand-subtitle">Academic Mentorship Management Portal</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="view-toggle-group">
+                    <button id="viewTableBtn" class="view-btn active" title="Table View">
+                        <span class="icon">📋</span> Table
+                    </button>
+                    <button id="viewGridBtn" class="view-btn" title="Grid View">
+                        <span class="icon">🎴</span> Cards
+                    </button>
+                </div>
+
+                <div id="dbStatusBadge" class="status-badge" title="Database Connection Status">
+                    <span class="status-dot"></span>
+                    <span id="dbStatusText">Checking DB...</span>
+                </div>
+
+                <button id="themeToggle" class="theme-toggle" title="Toggle Dark/Light Mode">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="successMessage" class="success"></div>
+
+        <div class="main-content">
+            
+            <!-- LEFT SIDE: ADD MENTOR FORM -->
+            <div class="left-section">
+
+                <div class="card form-card">
+
+                    <div class="card-title-group">
+                        <h2><span>➕</span> Add Mentor</h2>
+                        <p class="card-desc">Register a new faculty mentor into the system</p>
+                    </div>
+
+                    <form id="mentorForm">
+
+                        <div class="form-group">
+                            <label for="mentorName">Mentor Name <span class="required">*</span></label>
+                            <input type="text" id="mentorName" placeholder="e.g. Dr. Sarah Jenkins">
+                            <span id="nameError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="employeeId">Employee ID <span class="required">*</span></label>
+                            <input type="text" id="employeeId" placeholder="e.g. EMP1024">
+                            <span id="employeeError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="department">Department <span class="required">*</span></label>
+                            <select id="department">
+                                <option value="">Select Department</option>
+                                <option>Computer Science</option>
+                                <option>Information Technology</option>
+                                <option>Electronics</option>
+                                <option>Mechanical</option>
+                                <option>Civil</option>
+                            </select>
+                            <span id="departmentError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="designation">Designation <span class="required">*</span></label>
+                            <select id="designation">
+                                <option value="">Select Designation</option>
+                                <option>Professor</option>
+                                <option>Associate Professor</option>
+                                <option>Assistant Professor</option>
+                                <option>Lecturer</option>
+                            </select>
+                            <span id="designationError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maxMentees">Max Mentees Allowed <span class="required">*</span></label>
+                            <input type="number" id="maxMentees" min="1" max="20" placeholder="e.g. 5">
+                            <span id="menteesError" class="error"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="profilePhoto">Profile Photo <span class="required">*</span></label>
+                            <div class="file-dropzone" id="dropzone">
+                                <input type="file" id="profilePhoto" accept=".jpg,.jpeg,.png">
+                                <div class="dropzone-content">
+                                    <div class="upload-icon">📸</div>
+                                    <div class="upload-text" id="fileUploadText">Click or Drag & Drop photo here</div>
+                                    <div class="upload-hint">Supports JPG, JPEG, PNG (Max 5MB)</div>
+                                </div>
+                                <div id="photoPreviewContainer" class="photo-preview-container">
+                                    <img id="photoPreview" src="" alt="Preview" class="photo-preview">
+                                </div>
+                            </div>
+                            <span id="photoError" class="error"></span>
+                        </div>
+
+                        <button type="submit" id="submitButton" class="submit-btn" disabled>
+                            <span>Add Mentor</span>
+                            <span class="btn-arrow">→</span>
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDE: DASHBOARD ANALYTICS & CHARTS -->
+            <div class="right-section">
+
+                <div class="card dashboard-card">
+
+                    <div class="card-title-group">
+                        <h2><span>📊</span> Mentorship Analytics</h2>
+                        <p class="card-desc">Real-time statistics, allocation ratios, and capacity graphs</p>
+                    </div>
+
+                    <!-- 4 STAT METRICS GRID -->
+                    <div class="dashboard-stats">
+                        <div class="stat-box">
+                            <div class="stat-icon">👨‍🏫</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Total Mentors</div>
+                                <div class="stat-value" id="totalMentorsStat">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon">👨‍🎓</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Total Mentees</div>
+                                <div class="stat-value" id="totalStudentsStat">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Avg / Mentor</div>
+                                <div class="stat-value" id="avgStudentsStat">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Capacity Utilized</div>
+                                <div class="stat-value" id="capacityUtilStat">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DUAL CHARTS GRID -->
+                    <div class="charts-grid">
+                        <div class="chart-card-box">
+                            <h3>🏛️ Department Distribution</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="deptChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card-box">
+                            <h3>📊 Capacity Allocation</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="capacityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAPACITY STATUS BARS -->
+                    <div class="capacity-status">
+                        <h3>⚡ Status Overview</h3>
+                        <div class="status-item">
+                            <div class="status-info">
+                                <span class="status-badge-dot green"></span>
+                                <span>Available Spots</span>
+                            </div>
+                            <div class="capacity-bar">
+                                <div class="capacity-fill available" id="availableBar" style="width: 0%"></div>
+                            </div>
+                            <span class="capacity-count" id="availableCount">0</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-info">
+                                <span class="status-badge-dot red"></span>
+                                <span>At Full Capacity</span>
+                            </div>
+                            <div class="capacity-bar">
+                                <div class="capacity-fill full" id="fullBar" style="width: 0%"></div>
+                            </div>
+                            <span class="capacity-count" id="fullCount">0</span>
+                        </div>
+                    </div>
+
+                    <!-- INFORMATIONAL MENTORSHIP ACTIVITIES WITH DESCRIPTIONS -->
+                    <div class="activities-section">
+                        <h3>📚 Mentorship Activities</h3>
+                        <div class="activities-grid">
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">💻</span>
+                                    <h4 class="activity-title">Problem Solving</h4>
+                                </div>
+                                <p class="activity-desc">Practice technical and logical problems.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">📖</span>
+                                    <h4 class="activity-title">Book Reading</h4>
+                                </div>
+                                <p class="activity-desc">Read recommended books & research material.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">🎥</span>
+                                    <h4 class="activity-title">Video Learning</h4>
+                                </div>
+                                <p class="activity-desc">Watch educational & introductory videos.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">🗣</span>
+                                    <h4 class="activity-title">Discussion Sessions</h4>
+                                </div>
+                                <p class="activity-desc">Discuss doubts, projects & career topics.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">📝</span>
+                                    <h4 class="activity-title">Assignments</h4>
+                                </div>
+                                <p class="activity-desc">Complete small tasks or practical activities.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">🎯</span>
+                                    <h4 class="activity-title">Goal Setting</h4>
+                                </div>
+                                <p class="activity-desc">Set academic & personal development goals.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">🎤</span>
+                                    <h4 class="activity-title">Presentation</h4>
+                                </div>
+                                <p class="activity-desc">Present projects or ideas to the mentor.</p>
+                            </div>
+
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <span class="activity-icon">🤝</span>
+                                    <h4 class="activity-title">Group Activities</h4>
+                                </div>
+                                <p class="activity-desc">Participate in collaborative learning.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MENTOR DIRECTORY CARD -->
+        <div class="card mentor-list-card">
+
+            <div class="card-header">
+                <div class="card-title-group">
+                    <h2><span>👨‍🏫</span> Mentor Directory <span id="mentorCountBadge" class="badge">0</span></h2>
+                    <p class="card-desc">Filter, manage mentors, assign mentees, and export custom reports</p>
+                </div>
+
+                <!-- EXPORT BUTTONS: CSV MENTORS LIST + FULL PDF REPORT -->
+                <div class="export-buttons-group">
+                    <button type="button" id="downloadMentorsCsv" class="export-btn secondary-export" title="Export list of all mentors to CSV">
+                        📊 Mentors List CSV
+                    </button>
+                    <button type="button" id="downloadFullReportPdf" class="export-btn primary-export" title="Export colorful full report of mentors and assigned students to PDF">
+                        📄 Mentors + Mentees Full PDF Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-toolbar">
+                <div class="filter-section">
+                    <div class="select-wrapper">
+                        <select id="filterDepartment" class="filter-select">
+                            <option value="">All Departments</option>
+                            <option>Computer Science</option>
+                            <option>Information Technology</option>
+                            <option>Electronics</option>
+                            <option>Mechanical</option>
+                            <option>Civil</option>
+                        </select>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <select id="filterDesignation" class="filter-select">
+                            <option value="">All Designations</option>
+                            <option>Professor</option>
+                            <option>Associate Professor</option>
+                            <option>Assistant Professor</option>
+                            <option>Lecturer</option>
+                        </select>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <select id="filterCapacity" class="filter-select">
+                            <option value="">All Capacities</option>
+                            <option value="available">Available Spots</option>
+                            <option value="full">Full Capacity</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="search-section">
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            id="searchMentor" 
+                            class="search-bar"
+                            placeholder="Search by name, employee ID, or department...">
+                        <button type="button" id="clearSearch" class="clear-search-btn" title="Clear Search">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLE VIEW -->
+            <div id="tableViewContainer" class="table-container">
+                <table id="mentorTable">
+                    <thead>
+                        <tr>
+                            <th>Mentor & Designation</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Max Capacity</th>
+                            <th>Capacity Status</th>
+                            <th>Photo</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mentorTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- GRID CARD VIEW (Alternating View) -->
+            <div id="gridViewContainer" class="grid-container" style="display: none;">
+                <div id="mentorGrid" class="mentor-grid"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- EDIT MENTOR DIALOG -->
+    <dialog id="editPopup">
+        <div class="dialog-header">
+            <h2>✏️ Edit Mentor Details</h2>
+            <button type="button" class="close-dialog-btn" onclick="editPopup.close()">✕</button>
+        </div>
+
+        <form id="editForm">
+            <div class="form-group">
+                <label for="editName">Mentor Name <span class="required">*</span></label>
+                <input type="text" id="editName">
+                <span id="editNameError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="editEmployeeId">Employee ID <span class="required">*</span></label>
+                <input type="text" id="editEmployeeId">
+                <span id="editEmployeeError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="editDepartment">Department <span class="required">*</span></label>
+                <select id="editDepartment">
+                    <option value="">Select Department</option>
+                    <option>Computer Science</option>
+                    <option>Information Technology</option>
+                    <option>Electronics</option>
+                    <option>Mechanical</option>
+                    <option>Civil</option>
+                </select>
+                <span id="editDepartmentError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="editDesignation">Designation <span class="required">*</span></label>
+                <select id="editDesignation">
+                    <option value="">Select Designation</option>
+                    <option>Professor</option>
+                    <option>Associate Professor</option>
+                    <option>Assistant Professor</option>
+                    <option>Lecturer</option>
+                </select>
+                <span id="editDesignationError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="editMaxMentees">Maximum Mentees <span class="required">*</span></label>
+                <input type="number" id="editMaxMentees" min="1" max="20">
+                <span id="editMenteesError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="editPhoto">Update Profile Photo (Optional)</label>
+                <input type="file" id="editPhoto" accept=".jpg,.jpeg,.png">
+                <span id="editPhotoError" class="error"></span>
+            </div>
+
+            <div class="dialog-buttons">
+                <button type="submit" class="submit-btn primary-btn">
+                    💾 Save Changes
+                </button>
+                <button type="button" class="cancel-btn" onclick="editPopup.close()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- DELETE CONFIRMATION DIALOG -->
+    <dialog id="deletePopup">
+        <div class="dialog-header danger">
+            <h2>🗑️ Delete Mentor</h2>
+            <button type="button" class="close-dialog-btn" onclick="deletePopup.close()">✕</button>
+        </div>
+
+        <div class="dialog-body">
+            <p>Are you sure you want to delete this mentor? This will also unassign all associated mentees.</p>
+        </div>
+
+        <div class="dialog-buttons">
+            <button type="button" id="confirmDelete" class="delete-btn">
+                Yes, Delete
+            </button>
+            <button type="button" class="cancel-btn" onclick="deletePopup.close()">
+                Cancel
+            </button>
+        </div>
+    </dialog>
+
+    <!-- ADD STUDENT DIALOG -->
+    <dialog id="studentPopup">
+        <div class="dialog-header">
+            <h2>👥 Assign Student Mentee</h2>
+            <button type="button" class="close-dialog-btn" onclick="studentPopup.close()">✕</button>
+        </div>
+
+        <form id="studentForm">
+            <div id="mentorCapacityLabel" class="mentor-capacity-badge">
+                Select Mentor...
+            </div>
+
+            <div class="form-group">
+                <label for="studentName">Student Full Name <span class="required">*</span></label>
+                <input type="text" id="studentName" placeholder="e.g. Alex Rivera">
+                <span id="studentNameError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="studentEmail">Student Email <span class="required">*</span></label>
+                <input type="email" id="studentEmail" placeholder="e.g. alex.rivera@univ.edu">
+                <span id="studentEmailError" class="error"></span>
+            </div>
+
+            <div class="dialog-buttons">
+                <button type="submit" class="submit-btn primary-btn">
+                    ➕ Add Student
+                </button>
+                <button type="button" class="cancel-btn" onclick="studentPopup.close()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- VIEW STUDENTS DIALOG -->
+    <dialog id="viewStudentsPopup" class="wide-dialog">
+        <div class="dialog-header">
+            <h2>📜 Assigned Mentees List</h2>
+            <button type="button" class="close-dialog-btn" onclick="viewStudentsPopup.close()">✕</button>
+        </div>
+
+        <div class="dialog-body">
+            <h3 id="viewStudentsMentorTitle" class="dialog-subtitle">Mentor: </h3>
+            <div id="studentsListContainer" class="students-list-container">
+                <div class="loading-spinner">Loading students...</div>
+            </div>
+        </div>
+
+        <div class="dialog-buttons">
+            <button type="button" class="cancel-btn" onclick="viewStudentsPopup.close()">
+                Close
+            </button>
+        </div>
+    </dialog>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
